@@ -1,15 +1,18 @@
+from nltk.tokenize import word_tokenize
+
+
 def load_text(f, encoding=None):
     with open(f, 'r', encoding=encoding) as file:
         return file.read()
 
 
 def load_data(f, encoding=None):
-    return table_data_formatting(
+    return formatted_table_data(
         load_text(f, encoding=encoding)
     )
 
 
-def table_data_formatting(s):
+def formatted_table_data(s):
     rows = s.splitlines()
 
     res = dict()
@@ -27,3 +30,7 @@ def table_data_formatting(s):
         }
 
     return res
+
+
+def tokenized_words(s):
+    return word_tokenize(s)
