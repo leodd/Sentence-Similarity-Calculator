@@ -1,7 +1,9 @@
-from utils import *
+from CorpusReader import CorpusReader
 
 
-data = load_data('data/test-set.txt', encoding='utf8')
+data = CorpusReader('data/train-set.txt')
 
-for key, item in data.items():
-    print(tokenized_words(item['Sentence1']))
+print(data)
+
+# for key, item in data.items():
+#     print(tokenized_words(item['Sentence1']))
