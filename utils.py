@@ -1,5 +1,9 @@
-from nltk.tokenize import word_tokenize
+import nltk
 
 
-def tokenized_words(s):
-    return word_tokenize(s)
+def tokenized_sentence(s):
+    return nltk.word_tokenize(s)
+
+
+def pos_tagged_sentence(l):
+    return nltk.pos_tag(l)
