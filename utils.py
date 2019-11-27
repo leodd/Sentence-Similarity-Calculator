@@ -1,7 +1,13 @@
 from nltk.tokenize import word_tokenize
 from nltk import pos_tag
 from nltk.stem import WordNetLemmatizer
+from nltk.parse.corenlp import CoreNLPServer, CoreNLPParser
+import os
 import re
+
+
+java_path = "C:/Program Files/Java/jdk-13.0.1/bin/java.exe"
+os.environ['JAVAHOME'] = java_path
 
 
 lemmatizer = WordNetLemmatizer()
@@ -48,3 +54,21 @@ def lemmatized_sentence(pos_l):
         )
 
     return res
+
+
+def parse_tree():
+    STANFORD = os.path.join("C:/Users/41052/Documents/Coding Project", 'stanford-corenlp-full-2018-10-05')
+
+    with CoreNLPServer(
+        os.path.join(STANFORD, 'stanford-corenlp-3.9.2.jar'),
+        os.path.join(STANFORD, 'stanford-corenlp-3.9.2-models.jar'),
+    ):
+        parser = CoreNLPParser()
+
+        text = "The runner scored from second on a base hit"
+        parse = next(parser.parse_text(text))
+        parse.draw()
+
+
+if __name__ == '__main__':
+    parse_tree()
