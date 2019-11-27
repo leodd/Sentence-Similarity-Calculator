@@ -1,21 +1,50 @@
 from nltk.tokenize import word_tokenize
-from nltk.corpus import wordnet
-from nltk.parse.corenlp import CoreNLPServer
+from nltk import pos_tag
+from nltk.stem import WordNetLemmatizer
+import re
+
+
+lemmatizer = WordNetLemmatizer()
 
 
 def stringized_data(data):
     str_list = list()
+
     for key, item in data.items():
         str_list.append(str(key))
+
         for content_key, content in item.items():
             str_list.append('\n\t{}: {}'.format(content_key, content))
         str_list.append('\n')
+
     return ''.join(str_list)
 
 
 def tokenized_sentence(s):
-    return word_tokenize(s)
+    res = word_tokenize(s)
+
+    res = [word for word in res if not re.search('^[,.?!\-\"\'()\[\]{}]+$', word)]
+
+    return res
 
 
 def pos_tagged_sentence(l):
-    return
+    return pos_tag(l)
+
+
+def lemmatized_sentence(pos_l):
+    res = list()
+
+    wordnet_tagset = {
+        'J': 'a',
+        'N': 'n',
+        'V': 'v',
+        'R': 'r'
+    }
+
+    for token, pos in pos_l:
+        res.append(
+            lemmatizer.lemmatize(token, pos=wordnet_tagset.get(pos[0], 'n')).lower()
+        )
+
+    return res
