@@ -6,8 +6,8 @@ import os
 import re
 
 
-java_path = "C:/Program Files/Java/jdk-13.0.1/bin/java.exe"
-os.environ['JAVAHOME'] = java_path
+# java_path = "C:/Program Files/Java/jdk-12.0.2/bin/java.exe"
+# os.environ['JAVAHOME'] = java_path
 
 
 lemmatizer = WordNetLemmatizer()
@@ -57,7 +57,7 @@ def lemmatized_sentence(pos_l):
 
 
 def parse_tree():
-    STANFORD = os.path.join("C:/Users/41052/Documents/Coding Project", 'stanford-corenlp-full-2018-10-05')
+    STANFORD = os.path.join("D:/semester3/6320/project/CoreNLP", 'stanford-corenlp-full-2018-10-05')
 
     with CoreNLPServer(
         os.path.join(STANFORD, 'stanford-corenlp-3.9.2.jar'),
@@ -67,7 +67,9 @@ def parse_tree():
 
         text = "The runner scored from second on a base hit"
         parse = next(parser.parse_text(text))
-        parse.draw()
+        # parse.draw()
+    return
+
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 from CorpusReader import CorpusReader
 from utils import *
+from feature import *
 
 
 reader = CorpusReader('data/train-set.txt')
@@ -17,5 +18,8 @@ for _, item in data.items():
 for _, item in data.items():
     item['Lemmatized Sentence1'] = lemmatized_sentence(item['Pos-tagged Sentence1'])
     item['Lemmatized Sentence2'] = lemmatized_sentence(item['Pos-tagged Sentence2'])
+
+for _, item in data.items():
+    item['cosine'] = tf_idf_feature(item['Lemmatized Sentence1'], item['Lemmatized Sentence2'])
 
 print(stringized_data(data))
