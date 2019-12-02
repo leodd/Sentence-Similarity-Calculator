@@ -1,16 +1,7 @@
 from nltk.tokenize import word_tokenize
 from nltk import pos_tag
 from nltk.stem import WordNetLemmatizer
-from nltk.parse.corenlp import CoreNLPServer, CoreNLPParser
-import os
 import re
-
-
-# java_path = "C:/Program Files/Java/jdk-12.0.2/bin/java.exe"
-# os.environ['JAVAHOME'] = java_path
-
-
-lemmatizer = WordNetLemmatizer()
 
 
 def stringized_data(data):
@@ -26,10 +17,40 @@ def stringized_data(data):
     return ''.join(str_list)
 
 
+def list_to_string(l):
+    return ' '.join(l)
+
+
 def tokenized_sentence(s):
     res = word_tokenize(s)
 
-    res = [word for word in res if not re.search('^[,.?!\-\"\'()\[\]{}]+$', word)]
+    res = [word for word in res if not re.search('^[,.?!:;$%\-\"`\'/()\[\]{}]+$', word)]
+
+    return res
+
+
+def simplified_dependency_tree(dependency_tree):
+    res = list()
+
+    for i in range(1, len(dependency_tree.nodes)):
+        term = dependency_tree.nodes[i]
+        res.append((
+            term['head'],
+            term['rel']
+        ))
+
+    return res
+
+
+def pos_tagged_lemmatized_sentence(dependency_tree):
+    res = list()
+
+    for i in range(1, len(dependency_tree.nodes)):
+        term = dependency_tree.nodes[i]
+        res.append((
+            term['lemma'],
+            term['tag']
+        ))
 
     return res
 
@@ -48,29 +69,11 @@ def lemmatized_sentence(pos_l):
         'R': 'r'
     }
 
+    lemmatizer = WordNetLemmatizer()
+
     for token, pos in pos_l:
         res.append(
             lemmatizer.lemmatize(token, pos=wordnet_tagset.get(pos[0], 'n')).lower()
         )
 
     return res
-
-
-def parse_tree():
-    STANFORD = os.path.join("D:/semester3/6320/project/CoreNLP", 'stanford-corenlp-full-2018-10-05')
-
-    with CoreNLPServer(
-        os.path.join(STANFORD, 'stanford-corenlp-3.9.2.jar'),
-        os.path.join(STANFORD, 'stanford-corenlp-3.9.2-models.jar'),
-    ):
-        parser = CoreNLPParser()
-
-        text = "The runner scored from second on a base hit"
-        parse = next(parser.parse_text(text))
-        # parse.draw()
-    return
-
-
-
-if __name__ == '__main__':
-    parse_tree()
