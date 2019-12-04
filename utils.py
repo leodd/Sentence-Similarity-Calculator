@@ -1,6 +1,7 @@
 from nltk.tokenize import word_tokenize
 from nltk import pos_tag
 from nltk.stem import WordNetLemmatizer
+from nltk.corpus import wordnet as wn
 import re
 
 
@@ -77,3 +78,48 @@ def lemmatized_sentence(pos_l):
         )
 
     return res
+
+
+def wordnet_hypernyms(word, pos=None):
+    res = list()
+
+    ss = wn.synsets(word, pos=pos)
+
+    for s in ss:
+        res += s.hypernyms()
+
+    return res
+
+
+def wordnet_hyponyms(word, pos=None):
+    res = list()
+
+    ss = wn.synsets(word, pos=pos)
+
+    for s in ss:
+        res += s.hyponyms()
+
+    return res
+
+
+def wordnet_meronyms(word, pos=None):
+    res = list()
+
+    ss = wn.synsets(word, pos=pos)
+
+    for s in ss:
+        res += s.part_meronyms()
+
+    return res
+
+
+def wordnet_holonyms(word, pos=None):
+    res = list()
+
+    ss = wn.synsets(word, pos=pos)
+
+    for s in ss:
+        res += s.part_holonyms()
+
+    return res
+
