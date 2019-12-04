@@ -122,4 +122,3 @@ def wordnet_holonyms(word, pos=None):
         res += s.part_holonyms()
 
     return res
-
