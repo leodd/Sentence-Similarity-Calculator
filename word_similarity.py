@@ -6,7 +6,7 @@ from itertools import product
 semcor_ic = wordnet_ic.ic('ic-semcor.dat')
 
 
-def lin_similarity(w1, w2, pos=None):
+def lin_similarity(w1, w2, pos):
     res = 0
 
     ss1 = wn.synsets(w1, pos=pos)
