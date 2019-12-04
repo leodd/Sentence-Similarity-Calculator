@@ -32,7 +32,7 @@ def tokenized_sentence(s):
 def simplified_dependency_tree(dependency_tree):
     res = list()
 
-    for i in range(1, len(dependency_tree.nodes)):
+    for i in range(0, len(dependency_tree.nodes)):
         term = dependency_tree.nodes[i]
         res.append((
             term['head'],
