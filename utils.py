@@ -2,6 +2,18 @@ from nltk.tokenize import word_tokenize
 from nltk import pos_tag
 from nltk.stem import WordNetLemmatizer
 import re
+import json
+
+
+def save_data(f, data):
+    with open(f, 'w+') as file:
+        file.write(json.dumps(data))
+
+
+def load_data(f):
+    with open(f, 'r') as file:
+        s = file.read()
+        return json.loads(s)
 
 
 def stringized_data(data):
