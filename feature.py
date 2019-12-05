@@ -1,6 +1,8 @@
 from word_similarity import *
 import numpy as np
 from nltk.corpus import stopwords
+from sklearn.feature_extraction.text import CountVectorizer
+from utils import *
 def sentence_union(l1,l2):  #l1 and l2 should be lemma-post list
     s1 = set(l1)
     s2 = set(l2)
@@ -25,7 +27,7 @@ def unionWithStopWord(l1,l2):
     return union_set,X_set,Y_set
 
 
-def tf_idf_feature(l1, l2): #l1 and l2 should be lemma-post list
+def cosine_similarity(l1, l2): #l1 and l2 should be lemma-post list
     # [('a', 'DT'), ('25', 'CD'), ('percent', 'NN')
 
     v1,v2 =[],[]
@@ -83,6 +85,17 @@ def semantic_similary(l1,l2):
     return similarity
 
 
+def jaccard_similarity(s1, s2):
+    cv = CountVectorizer(tokenizer=lambda s: s.split())
+    corpus = [s1, s2]
+    vectors = cv.fit_transform(corpus).toarray()
+    # 求交集
+    numerator = np.sum(np.min(vectors, axis=0))
+    # 求并集
+    denominator = np.sum(np.max(vectors, axis=0))
+    # 计算杰卡德系数
+    similarity = 1.0 * numerator / denominator
+    return similarity
 
 
 
@@ -91,12 +104,15 @@ def semantic_similary(l1,l2):
 
 
 if __name__ == '__main__':
-    u,s1,s2= unionWithStopWord(
+    res= cosine_similarity(
 [('a', 'DT'), ('25', 'CD'), ('percent', 'NN'), ('increase', 'NN'), ('would', 'MD'), ('raise', 'VB'), ('undergraduate', 'JJ'), ('tuition', 'NN'), ('to', 'TO'), ('about', 'IN'), ('5,247', 'CD'), ('annually', 'RB'), ('include', 'VBG'), ('miscellaneous', 'JJ'), ('campus-based', 'JJ'), ('fee', 'NNS')]
 ,
         [('annual', 'JJ'), ('uc', 'NN'), ('undergraduate', 'JJ'), ('tuition', 'NN'), ('to', 'TO'), ('4,794', 'CD'),
          ('and', 'CC'), ('graduate', 'JJ'), ('fee', 'NNS'), ('to', 'TO'), ('5,019', 'CD')]
     )
-print(u)
-print(s1)
-print(s2)
+    print(res)
+# print(s1)
+# print(s2)
+#     s1 = 'A 25 percent increase would raise undergraduate tuition to about $5,247 annually, including miscellaneous, campus-based fees'
+#     s2 = 'The 25 percent hike takes annual UC undergraduate tuition to $4,794 and graduate fees to $5,019'
+#     print(jaccard_similarity(s1, s2))s2
