@@ -34,10 +34,29 @@ def wup_similarity(w1, w2, pos=None):
     return res
 
 
-def wordset_similarity(ws1, ws2):
-    # word set is a set with word-pos tuple
+def jaccard_wordset_similarity(ws1, ws2):
+    overlaps = 0
+
+    print(ws1)
+    print(ws2)
+
+    n1 = len(ws1)
+    n2 = len(ws2)
+
+    for w1, _ in ws1:
+        for w2, _ in ws2:
+            if w1 == w2 or wup_similarity(w1, w2) == 1:
+                print(w1, w2)
+                overlaps += 1
+                break
+
+    return overlaps / (n1 + n2 - overlaps)
+
+
+def vectorized_wordset_similarity(ws1, ws2):
+    # word set is a set or list with word-pos tuple
     # e.g. {('apple', 'NN'), ('car', 'NN')}
-    ws_common = ws1 | ws2
+    ws_common = set(ws1) | set(ws2)
     ws_vector = list(ws_common)
 
     v1 = list()
@@ -59,6 +78,25 @@ def wordset_similarity(ws1, ws2):
     return np.sum(v1 * v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
 
 
+def mutual_wordset_similarity(ws1, ws2):
+    res = 0
+
+    n1 = len(ws1)
+    n2 = len(ws2)
+
+    for w in ws1:
+        _, similarity = most_similar_word(w, ws2)
+        res += similarity
+
+    for w in ws2:
+        _, similarity = most_similar_word(w, ws1)
+        res += similarity
+
+    res /= n1 + n2
+
+    return res
+
+
 def most_similar_word(target, ws):
     max_matching = None
     max_similarity = 0
@@ -72,6 +110,7 @@ def most_similar_word(target, ws):
     return max_matching, max_similarity
 
 
-if __name__ == '__main__':
-    print(wordset_similarity({('a', 'DT'), ('25', 'CD'), ('percent', 'NN'), ('increase', 'NN'), ('would', 'MD')},
-                             {('the', 'DT'), ('25', 'CD'), ('percent', 'NN'), ('hike', 'NN'), ('take', 'VBZ')}))
+def wordset_number_difference(ws1, ws2):
+    n1 = len(ws1)
+    n2 = len(ws2)
+    return abs(n1 - n2) / max(n1, n2)

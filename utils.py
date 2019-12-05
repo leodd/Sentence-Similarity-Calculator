@@ -139,3 +139,13 @@ def wordnet_holonyms(word, pos=None):
         res += s.part_holonyms()
 
     return res
+
+
+def get_wordset_by_pos(lemma_pos, pos_constraint):
+    res = set()
+
+    for lemma, pos in lemma_pos:
+        if pos_constraint(pos):
+            res.add((lemma, pos))
+
+    return res
