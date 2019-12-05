@@ -2,6 +2,7 @@ from nltk.corpus import wordnet as wn
 from nltk.corpus import wordnet_ic
 import numpy as np
 from itertools import product
+from utils import *
 
 
 semcor_ic = wordnet_ic.ic('ic-semcor.dat')
@@ -52,6 +53,9 @@ def wordset_similarity(ws1, ws2):
     v1 = np.array(v1)
     v2 = np.array(v2)
 
+    print(v1)
+    print(v2)
+
     return np.sum(v1 * v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
 
 
@@ -60,7 +64,7 @@ def most_similar_word(target, ws):
     max_similarity = 0
 
     for w in ws:
-        similarity = 1 / (1.1 - wup_similarity(target[0], w[0]))
+        similarity = wup_similarity(target[0], w[0])
         if similarity >= max_similarity:
             max_matching = w
             max_similarity = similarity
@@ -69,4 +73,5 @@ def most_similar_word(target, ws):
 
 
 if __name__ == '__main__':
-    print(wordset_similarity({('red', 'JJ'), ('car', 'NN')}, {('kill', 'VB'), ('egg', 'NN'), ('cat', 'NN')}))
+    print(wordset_similarity({('a', 'DT'), ('25', 'CD'), ('percent', 'NN'), ('increase', 'NN'), ('would', 'MD')},
+                             {('the', 'DT'), ('25', 'CD'), ('percent', 'NN'), ('hike', 'NN'), ('take', 'VBZ')}))

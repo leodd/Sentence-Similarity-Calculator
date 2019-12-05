@@ -63,6 +63,18 @@ def pos_tagged_sentence(l):
 def lemmatized_sentence(pos_l):
     res = list()
 
+    lemmatizer = WordNetLemmatizer()
+
+    for token, pos in pos_l:
+        wordnet_pos = pos_to_wordnet_pos(pos)
+        res.append(
+            lemmatizer.lemmatize(token, pos='n' if wordnet_pos is None else wordnet_pos).lower()
+        )
+
+    return res
+
+
+def pos_to_wordnet_pos(pos):
     wordnet_tagset = {
         'J': 'a',
         'N': 'n',
@@ -70,14 +82,7 @@ def lemmatized_sentence(pos_l):
         'R': 'r'
     }
 
-    lemmatizer = WordNetLemmatizer()
-
-    for token, pos in pos_l:
-        res.append(
-            lemmatizer.lemmatize(token, pos=wordnet_tagset.get(pos[0], 'n')).lower()
-        )
-
-    return res
+    return wordnet_tagset.get(pos[0], None)
 
 
 def wordnet_hypernyms(word, pos=None):
