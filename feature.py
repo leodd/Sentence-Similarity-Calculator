@@ -2,7 +2,9 @@ from word_similarity import *
 import numpy as np
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
-from utils import *
+from sklearn.feature_extraction.text import TfidfVectorizer
+import numpy as np
+from scipy.linalg import norm
 def sentence_union(l1,l2):  #l1 and l2 should be lemma-post list
     s1 = set(l1)
     s2 = set(l2)
@@ -55,7 +57,6 @@ def cosine_similarity(l1, l2): #l1 and l2 should be lemma-post list
 
 def semantic_similary(l1,l2):
     # input l1 ,l2 is lemma-pos list ,like [('a', 'DT'), ('25', 'CD'), ('percent', 'NN'), ('increase', 'NN')]
-
     union_set =sentence_union(l1,l2)
     v1,v2 =[],[]
 
@@ -89,30 +90,37 @@ def jaccard_similarity(s1, s2):
     cv = CountVectorizer(tokenizer=lambda s: s.split())
     corpus = [s1, s2]
     vectors = cv.fit_transform(corpus).toarray()
-    # 求交集
+    # intersection calculate
     numerator = np.sum(np.min(vectors, axis=0))
-    # 求并集
+    # union calculate
     denominator = np.sum(np.max(vectors, axis=0))
-    # 计算杰卡德系数
     similarity = 1.0 * numerator / denominator
     return similarity
 
 
+def tfidf_similarity(s1, s2):
+    # make the TF matrix
+    cv = TfidfVectorizer(tokenizer=lambda s: s.split())
+    corpus = [s1, s2]
+    vectors = cv.fit_transform(corpus).toarray()
+    # calculate the TF coefficient
+    return np.dot(vectors[0], vectors[1]) / (norm(vectors[0]) * norm(vectors[1]))
 
 
 
 
 
 if __name__ == '__main__':
-    res= cosine_similarity(
-[('a', 'DT'), ('25', 'CD'), ('percent', 'NN'), ('increase', 'NN'), ('would', 'MD'), ('raise', 'VB'), ('undergraduate', 'JJ'), ('tuition', 'NN'), ('to', 'TO'), ('about', 'IN'), ('5,247', 'CD'), ('annually', 'RB'), ('include', 'VBG'), ('miscellaneous', 'JJ'), ('campus-based', 'JJ'), ('fee', 'NNS')]
-,
-        [('annual', 'JJ'), ('uc', 'NN'), ('undergraduate', 'JJ'), ('tuition', 'NN'), ('to', 'TO'), ('4,794', 'CD'),
-         ('and', 'CC'), ('graduate', 'JJ'), ('fee', 'NNS'), ('to', 'TO'), ('5,019', 'CD')]
-    )
-    print(res)
+#     res= cosine_similarity(
+# [('a', 'DT'), ('25', 'CD'), ('percent', 'NN'), ('increase', 'NN'), ('would', 'MD'), ('raise', 'VB'), ('undergraduate', 'JJ'), ('tuition', 'NN'), ('to', 'TO'), ('about', 'IN'), ('5,247', 'CD'), ('annually', 'RB'), ('include', 'VBG'), ('miscellaneous', 'JJ'), ('campus-based', 'JJ'), ('fee', 'NNS')]
+# ,
+#         [('annual', 'JJ'), ('uc', 'NN'), ('undergraduate', 'JJ'), ('tuition', 'NN'), ('to', 'TO'), ('4,794', 'CD'),
+#          ('and', 'CC'), ('graduate', 'JJ'), ('fee', 'NNS'), ('to', 'TO'), ('5,019', 'CD')]
+#     )
+#     print(res)
 # print(s1)
-# print(s2)
-#     s1 = 'A 25 percent increase would raise undergraduate tuition to about $5,247 annually, including miscellaneous, campus-based fees'
-#     s2 = 'The 25 percent hike takes annual UC undergraduate tuition to $4,794 and graduate fees to $5,019'
-#     print(jaccard_similarity(s1, s2))s2
+    # print(s2)
+    s1 = 'A 25 percent increase would raise undergraduate tuition to about $5,247 annually, including miscellaneous, campus-based fees'
+    s2 = 'The 25 percent hike takes annual UC undergraduate tuition to $4,794 and graduate fees to $5,019'
+# print(jaccard_similarity(s1, s2))
+    print(tfidf_similarity(s1, s2))#     print(jaccard_similarity(s1, s2))s2
