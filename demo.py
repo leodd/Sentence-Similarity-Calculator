@@ -41,7 +41,7 @@ if True:
 
     # print(stringized_data(data))
 
-    item = data['s_6']
+    item = data['s_7']
 
     print(item['lemma-pos1'])
     print(item['lemma-pos2'])

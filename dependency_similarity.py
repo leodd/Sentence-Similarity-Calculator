@@ -18,7 +18,8 @@ def dependency_tree_similarity(root1, root2):
     for i, d1 in enumerate(dependencies1):
         for j, d2 in enumerate(dependencies2):
             similarity_matrix[i, j] = \
-                wup_similarity(d1[0], d2[0]) * wup_similarity(d1[1], d2[1]) * (1 if d1[2] == d2[2] else 0.5)
+                wup_similarity(d1[0], d2[0]) * wup_similarity(d1[1], d2[1]) * (1 if d1[2] == d2[2] else 0.3) * \
+                np.e ** (- abs(d1[3] - d2[3]))
             depth_weight_matrix[i, j] = np.e ** (- max(d1[3], d2[3]) * 0.5)
 
     similarity_matrix *= depth_weight_matrix
@@ -38,7 +39,7 @@ def get_dependency_list(root):
 
     root.depth = 0
 
-    allow_pos = {'N', 'V', 'C'}
+    allow_pos = {'N', 'V', 'J', 'R', 'C'}
 
     while len(stack) > 0:
         current = stack.pop()
