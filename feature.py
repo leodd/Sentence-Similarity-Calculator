@@ -1,12 +1,15 @@
 from word_similarity import *
 import numpy as np
 from nltk.corpus import stopwords
+
+
 def sentence_union(l1,l2):  #l1 and l2 should be lemma-post list
     s1 = set(l1)
     s2 = set(l2)
     union_set = s1 | s2
     # v1, v2 = [], []
     return  list(union_set) #,list(s1) ,list(s2)
+
 
 def unionWithStopWord(l1,l2):
     # l1 and l2 should be lemma-post list
@@ -51,6 +54,7 @@ def tf_idf_feature(l1, l2): #l1 and l2 should be lemma-post list
 
     return cosine
 
+
 def semantic_similary(l1,l2):
     # input l1 ,l2 is lemma-pos list ,like [('a', 'DT'), ('25', 'CD'), ('percent', 'NN'), ('increase', 'NN')]
 
@@ -83,20 +87,11 @@ def semantic_similary(l1,l2):
     return similarity
 
 
-
-
-
-
-
-
-
 if __name__ == '__main__':
     u,s1,s2= unionWithStopWord(
-[('a', 'DT'), ('25', 'CD'), ('percent', 'NN'), ('increase', 'NN'), ('would', 'MD'), ('raise', 'VB'), ('undergraduate', 'JJ'), ('tuition', 'NN'), ('to', 'TO'), ('about', 'IN'), ('5,247', 'CD'), ('annually', 'RB'), ('include', 'VBG'), ('miscellaneous', 'JJ'), ('campus-based', 'JJ'), ('fee', 'NNS')]
-,
+        [('a', 'DT'), ('25', 'CD'), ('percent', 'NN'), ('increase', 'NN'), ('would', 'MD'), ('raise', 'VB'),
+         ('undergraduate', 'JJ'), ('tuition', 'NN'), ('to', 'TO'), ('about', 'IN'), ('5,247', 'CD'),
+         ('annually', 'RB'), ('include', 'VBG'), ('miscellaneous', 'JJ'), ('campus-based', 'JJ'), ('fee', 'NNS')],
         [('annual', 'JJ'), ('uc', 'NN'), ('undergraduate', 'JJ'), ('tuition', 'NN'), ('to', 'TO'), ('4,794', 'CD'),
          ('and', 'CC'), ('graduate', 'JJ'), ('fee', 'NNS'), ('to', 'TO'), ('5,019', 'CD')]
     )
-print(u)
-print(s1)
-print(s2)

@@ -2,6 +2,8 @@ from CorpusReader import CorpusReader
 from utils import *
 from stanford import CoreNLP
 from feature import *
+from dependency_tree import build_tree
+from dependency_similarity import *
 import sys
 
 
@@ -33,8 +35,19 @@ if False:
 
     save_data('processed-data/test-set.json', data)
 
-data = load_data('processed-data/train-set.json')
+# features computation
+if True:
+    data = load_data('processed-data/train-set.json')
 
-print(stringized_data(data))
+    # print(stringized_data(data))
 
+    item = data['s_1481']
 
+    print(item['lemma-pos1'])
+    print(item['lemma-pos2'])
+    print(item['Gold Tag'])
+
+    root1 = build_tree(item['d-tree1'], item['lemma-pos1'])
+    root2 = build_tree(item['d-tree2'], item['lemma-pos2'])
+
+    print(dependency_tree_similarity(root1, root2))
