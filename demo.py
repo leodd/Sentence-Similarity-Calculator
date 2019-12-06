@@ -77,7 +77,7 @@ if False:
     save_data('processed-data/dev-set.json', train_data)
 
 # learning
-if True:
+if False:
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     train_data = load_data('processed-data/train-set.json')
@@ -122,36 +122,33 @@ if True:
         print(loss.item(), dev_loss.item())
 
     for k, i in dev_id_dict.items():
-        print(k, dev_Y[i].item(), torch.max(dev_out[i], 0)[1])
+        print(k, dev_Y[i].item(), int(torch.max(dev_out[i], 0)[1]))
 
     torch.save(model.state_dict(), 'result/model.ckpt')
 
 # testing
-if False:
+if True:
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    train_data = load_data('processed-data/dev-set.json')
+    test_data = load_data('processed-data/test-set.json')
 
-    id_dict, X, Y, weight = data_to_XY(train_data, device)
+    id_dict, X, Y = data_to_XY(test_data, device, no_gold_tag=True)
 
-    model = NeuralLearner([6, 30, 30, 5]).to(device)
+    model = NeuralLearner([6, 100, 100, 5]).to(device)
     model.load_state_dict(
         torch.load('result/model.ckpt', map_location='cuda:0' if torch.cuda.is_available() else 'cpu')
     )
     model.eval()
 
-    criterion = nn.CrossEntropyLoss(weight)
-    optimizer = torch.optim.SGD(model.parameters(), lr=1, weight_decay=0.0001)
-
     # forward pass
     out = model(X)
-    loss = criterion(out, Y)
 
-    print(loss.item())
+    res = 'id\tGold Tag'
 
     for k, i in id_dict.items():
-        print(k, Y[i].item(), torch.max(out[i], 0)[1])
+        res += '\n{}\t{}'.format(k, torch.max(out[i], 0)[1])
 
-    torch.save(model.state_dict(), 'result/model.ckpt')
+    with open('result/test_prediction.txt', 'w+') as file:
+        file.write(res)
 
 # print(stringized_data(data))

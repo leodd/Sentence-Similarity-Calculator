@@ -166,7 +166,7 @@ def separate_data_by_class(data):
     return res
 
 
-def data_to_XY(data, device):
+def data_to_XY(data, device, no_gold_tag=False):
     id_dict = dict()
 
     m = len(data)
@@ -181,7 +181,8 @@ def data_to_XY(data, device):
         X[i, 3] = item['tf-idf']
         X[i, 4] = item['cosine-sim']
         X[i, 5] = item['jaccard-sim']
-        Y[i] = item['Gold Tag'] - 1
+        if not no_gold_tag:
+            Y[i] = item['Gold Tag'] - 1
         id_dict[k] = i
 
     X = torch.from_numpy(X).float().to(device)
