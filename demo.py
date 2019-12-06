@@ -83,18 +83,34 @@ if True:
     train_data = load_data('processed-data/train-set.json')
     dev_data = load_data('processed-data/dev-set.json')
 
-    id_dict, X, Y, weight = data_to_XY(train_data, device)
-    dev_id_dict, dev_X, dev_Y, dev_weight = data_to_XY(dev_data, device)
+    id_dict, X, Y = data_to_XY(train_data, device)
+    dev_id_dict, dev_X, dev_Y = data_to_XY(dev_data, device)
 
-    model = NeuralLearner([6, 30, 30, 5]).to(device)
+    separated_data = separate_data_by_class(train_data)
+    separated_XY = list()
+    for c_data in separated_data:
+        _, c_X, c_Y = data_to_XY(c_data, device)
+        separated_XY.append((c_X, c_Y))
 
-    criterion = nn.CrossEntropyLoss(weight)
-    optimizer = torch.optim.SGD(model.parameters(), lr=1, weight_decay=0.01)
+    model = NeuralLearner([6, 50, 50, 1]).to(device)
 
-    for epoch in range(10000):
+    criterion = nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.1, weight_decay=0)
+
+    for epoch in range(100000):
+        idx = [torch.randint(len(separated_data[i]), size=(100,)) for i in range(5)]
+        mini_X = torch.cat(
+            [separated_XY[i][0][idx[i]] for i in range(5)],
+            dim=0
+        )
+        mini_Y = torch.cat(
+            [separated_XY[i][1][idx[i]] for i in range(5)],
+            dim=0
+        )
+
         # forward pass
-        out = model(X)
-        loss = criterion(out, Y)
+        out = model(mini_X)
+        loss = criterion(out, mini_Y)
         dev_out = model(dev_X)
         dev_loss = criterion(dev_out, dev_Y)
 
@@ -106,36 +122,36 @@ if True:
         print(loss.item(), dev_loss.item())
 
     for k, i in dev_id_dict.items():
-        print(k, dev_Y[i].item(), torch.max(dev_out[i], 0)[1])
+        print(k, dev_Y[i].item(), dev_out[i].item())
 
     torch.save(model.state_dict(), 'result/model.ckpt')
 
 # testing
-if False:
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-
-    train_data = load_data('processed-data/dev-set.json')
-
-    id_dict, X, Y, weight = data_to_XY(train_data, device)
-
-    model = NeuralLearner([6, 30, 30, 5]).to(device)
-    model.load_state_dict(
-        torch.load('result/model.ckpt', map_location='cuda:0' if torch.cuda.is_available() else 'cpu')
-    )
-    model.eval()
-
-    criterion = nn.CrossEntropyLoss(weight)
-    optimizer = torch.optim.SGD(model.parameters(), lr=1, weight_decay=0.0001)
-
-    # forward pass
-    out = model(X)
-    loss = criterion(out, Y)
-
-    print(loss.item())
-
-    for k, i in id_dict.items():
-        print(k, Y[i].item(), torch.max(out[i], 0)[1])
-
-    torch.save(model.state_dict(), 'result/model.ckpt')
+# if False:
+#     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+#
+#     train_data = load_data('processed-data/dev-set.json')
+#
+#     id_dict, X, Y, weight = data_to_XY(train_data, device)
+#
+#     model = NeuralLearner([6, 30, 30, 5]).to(device)
+#     model.load_state_dict(
+#         torch.load('result/model.ckpt', map_location='cuda:0' if torch.cuda.is_available() else 'cpu')
+#     )
+#     model.eval()
+#
+#     criterion = nn.CrossEntropyLoss(weight)
+#     optimizer = torch.optim.SGD(model.parameters(), lr=1, weight_decay=0.0001)
+#
+#     # forward pass
+#     out = model(X)
+#     loss = criterion(out, Y)
+#
+#     print(loss.item())
+#
+#     for k, i in id_dict.items():
+#         print(k, Y[i].item(), torch.max(out[i], 0)[1])
+#
+#     torch.save(model.state_dict(), 'result/model.ckpt')
 
 # print(stringized_data(data))

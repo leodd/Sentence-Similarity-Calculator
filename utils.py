@@ -157,14 +157,22 @@ def list_to_hashable(l):
     return [tuple(item) for item in l]
 
 
+def separate_data_by_class(data):
+    res = [dict() for _ in range(5)]
+
+    for k, item in data.items():
+        res[item['Gold Tag'] - 1][k] = item
+
+    return res
+
+
 def data_to_XY(data, device):
     id_dict = dict()
-    class_weight = np.zeros(5)
 
     m = len(data)
 
     X = np.zeros((m, 6))
-    Y = np.zeros(m)
+    Y = np.zeros((m, 1))
 
     for i, (k, item) in enumerate(data.items()):
         X[i, 0] = item['d-sim']
@@ -173,11 +181,10 @@ def data_to_XY(data, device):
         X[i, 3] = item['tf-idf']
         X[i, 4] = item['cosine-sim']
         X[i, 5] = item['jaccard-sim']
-        Y[i] = item['Gold Tag'] - 1
-        class_weight[item['Gold Tag'] - 1] += 1
+        Y[i] = item['Gold Tag']
         id_dict[k] = i
 
     X = torch.from_numpy(X).float().to(device)
-    Y = torch.from_numpy(Y).long().to(device)
+    Y = torch.from_numpy(Y).float().to(device)
 
-    return id_dict, X, Y, torch.from_numpy(1 / class_weight).float()
+    return id_dict, X, Y
