@@ -215,7 +215,7 @@ if True:
     # predict test data
     test_data = load_data('processed-data/dev-set.json')
 
-    id_dict, X, Y = data_to_XY(test_data, no_gold_tag=True)
+    id_dict, X, _ = data_to_XY(test_data, no_gold_tag=True)
     dtest = xgb.DMatrix(X)
 
     out = bst.predict(dtest)
