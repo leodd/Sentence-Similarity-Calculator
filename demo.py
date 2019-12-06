@@ -1,10 +1,13 @@
 from CorpusReader import CorpusReader
 from utils import *
 from stanford import CoreNLP
-from feature import *
 from dependency_tree import build_tree
 from dependency_similarity import *
+from feature import *
+from NeuralLearner import *
 import torch
+import torch.nn as nn
+import numpy as np
 import sys
 
 
@@ -38,37 +41,67 @@ if False:
 
 # features computation
 if False:
-    data = load_data('processed-data/dev-set.json')
+    data = load_data('processed-data/train-set.json')
 
     for k, item in data.items():
         print(k)
 
-        item['Gold Tag'] = int(item['Gold Tag'])
+        # item['Gold Tag'] = int(item['Gold Tag'])
+        #
+        # root1 = build_tree(item['d-tree1'], item['lemma-pos1'])
+        # root2 = build_tree(item['d-tree2'], item['lemma-pos2'])
+        #
+        # item['d-sim'] = dependency_tree_similarity(root1, root2)
+        #
+        # selected_wordset1 = get_wordset_by_pos(
+        #     item['lemma-pos1'],
+        #     lambda pos: pos[0] == 'N' or pos == 'CD'
+        # )
+        #
+        # selected_wordset2 = get_wordset_by_pos(
+        #     item['lemma-pos2'],
+        #     lambda pos: pos[0] == 'N' or pos == 'CD'
+        # )
+        #
+        # item['nn-cd-sim'] = jaccard_wordset_similarity(selected_wordset1, selected_wordset2)
+        # item['nn-cd-num-diff'] = wordset_number_difference(selected_wordset1, selected_wordset2)
+        #
+        # item['tf-idf'] = tfidf_similarity(item['Sentence1'], item['Sentence2'])
+        # item['cosine-sim'] = cosine_similarity(
+        #     list_to_hashable(item['lemma-pos1']),
+        #     list_to_hashable(item['lemma-pos2'])
+        # )
 
-        root1 = build_tree(item['d-tree1'], item['lemma-pos1'])
-        root2 = build_tree(item['d-tree2'], item['lemma-pos2'])
+        item['jaccard-sim'] = jaccard_similarity(item['Sentence1'], item['Sentence2'])
 
-        item['d-sim'] = dependency_tree_similarity(root1, root2)
-
-        selected_wordset1 = get_wordset_by_pos(
-            item['lemma-pos1'],
-            lambda pos: pos[0] == 'N' or pos == 'CD'
-        )
-
-        selected_wordset2 = get_wordset_by_pos(
-            item['lemma-pos2'],
-            lambda pos: pos[0] == 'N' or pos == 'CD'
-        )
-
-        item['nn-cd-sim'] = jaccard_wordset_similarity(selected_wordset1, selected_wordset2)
-        item['nn-cd-num-diff'] = wordset_number_difference(selected_wordset1, selected_wordset2)
-
-    save_data('processed-data/dev-set.json', data)
+    save_data('processed-data/train-set.json', data)
 
 # learning
 if True:
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
     data = load_data('processed-data/train-set.json')
 
+    id_dict, X, Y = data_to_XY(data, device)
 
+    model = NeuralLearner([6, 30, 30, 5]).to(device)
 
-print(stringized_data(data))
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1)
+
+    for epoch in range(1000):
+        # forward pass
+        out = model(X)
+        loss = criterion(out, Y)
+
+        # backward pass
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        print(loss.item())
+
+    for k, i in id_dict.items():
+        print(k, Y[i].item(), out[i])
+
+# print(stringized_data(data))

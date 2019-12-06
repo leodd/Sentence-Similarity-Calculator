@@ -2,6 +2,8 @@ from nltk.tokenize import word_tokenize
 from nltk import pos_tag
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet as wn
+import torch
+import numpy as np
 import re
 import json
 
@@ -149,3 +151,31 @@ def get_wordset_by_pos(lemma_pos, pos_constraint):
             res.add((lemma, pos))
 
     return res
+
+
+def list_to_hashable(l):
+    return [tuple(item) for item in l]
+
+
+def data_to_XY(data, device):
+    id_dict = dict()
+
+    m = len(data)
+
+    X = np.zeros((m, 6))
+    Y = np.zeros(m)
+
+    for i, (k, item) in enumerate(data.items()):
+        X[i, 0] = item['d-sim']
+        X[i, 1] = item['nn-cd-sim']
+        X[i, 2] = item['nn-cd-num-diff']
+        X[i, 3] = item['tf-idf']
+        X[i, 4] = item['cosine-sim']
+        X[i, 5] = item['jaccard-sim']
+        Y[i] = item['Gold Tag'] - 1
+        id_dict[k] = i
+
+    X = torch.from_numpy(X).float().to(device)
+    Y = torch.from_numpy(Y).long().to(device)
+
+    return id_dict, X, Y

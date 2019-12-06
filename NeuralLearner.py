@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 class NeuralLearner(nn.Module):
-    def __init__(self, opt=(3, 10, 10, 1)):
+    def __init__(self, opt):
         super(NeuralLearner, self).__init__()
 
         self.layers = list()
@@ -18,10 +18,11 @@ class NeuralLearner(nn.Module):
 
             if i < len(opt) - 1:
                 self.layers.append(
-                    nn.LeakyReLU()
+                    nn.Tanh()
                 )
 
         self.layers = nn.ModuleList(self.layers)
+        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
         out = x
@@ -29,4 +30,4 @@ class NeuralLearner(nn.Module):
         for layer in self.layers:
             out = layer(out)
 
-        return out
+        return self.softmax(out)
