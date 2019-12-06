@@ -36,7 +36,7 @@ if False:
     save_data('processed-data/test-set.json', data)
 
 # features computation
-if True:
+if False:
     data = load_data('processed-data/dev-set.json')
 
     for k, item in data.items():
@@ -64,17 +64,10 @@ if True:
 
     save_data('processed-data/dev-set.json', data)
 
-if False:
+# learning
+if True:
     data = load_data('processed-data/train-set.json')
 
-    item = data['s_1483']
 
-    root1 = build_tree(item['d-tree1'], item['lemma-pos1'])
-    root2 = build_tree(item['d-tree2'], item['lemma-pos2'])
-
-    print(item['Sentence1'])
-    print(item['Sentence2'])
-    print(item['Gold Tag'])
-    print(dependency_tree_similarity(root1, root2))
 
 print(stringized_data(data))
