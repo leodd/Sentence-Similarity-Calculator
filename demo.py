@@ -4,6 +4,7 @@ from stanford import CoreNLP
 from feature import *
 from dependency_tree import build_tree
 from dependency_similarity import *
+import torch
 import sys
 
 
