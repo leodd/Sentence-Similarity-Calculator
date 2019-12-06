@@ -37,30 +37,44 @@ if False:
 
 # features computation
 if True:
+    data = load_data('processed-data/dev-set.json')
+
+    for k, item in data.items():
+        print(k)
+
+        item['Gold Tag'] = int(item['Gold Tag'])
+
+        root1 = build_tree(item['d-tree1'], item['lemma-pos1'])
+        root2 = build_tree(item['d-tree2'], item['lemma-pos2'])
+
+        item['d-sim'] = dependency_tree_similarity(root1, root2)
+
+        selected_wordset1 = get_wordset_by_pos(
+            item['lemma-pos1'],
+            lambda pos: pos[0] == 'N' or pos == 'CD'
+        )
+
+        selected_wordset2 = get_wordset_by_pos(
+            item['lemma-pos2'],
+            lambda pos: pos[0] == 'N' or pos == 'CD'
+        )
+
+        item['nn-cd-sim'] = jaccard_wordset_similarity(selected_wordset1, selected_wordset2)
+        item['nn-cd-num-diff'] = wordset_number_difference(selected_wordset1, selected_wordset2)
+
+    save_data('processed-data/dev-set.json', data)
+
+if False:
     data = load_data('processed-data/train-set.json')
 
-    # print(stringized_data(data))
-
-    item = data['s_7']
-
-    print(item['lemma-pos1'])
-    print(item['lemma-pos2'])
-    print(item['Gold Tag'])
+    item = data['s_1483']
 
     root1 = build_tree(item['d-tree1'], item['lemma-pos1'])
     root2 = build_tree(item['d-tree2'], item['lemma-pos2'])
 
+    print(item['Sentence1'])
+    print(item['Sentence2'])
+    print(item['Gold Tag'])
     print(dependency_tree_similarity(root1, root2))
 
-    selected_wordset1 = get_wordset_by_pos(
-        item['lemma-pos1'],
-        lambda pos: pos[0] == 'N' or pos == 'CD'
-    )
-
-    selected_wordset2 = get_wordset_by_pos(
-        item['lemma-pos2'],
-        lambda pos: pos[0] == 'N' or pos == 'CD'
-    )
-
-    print(jaccard_wordset_similarity(selected_wordset1, selected_wordset2))
-    print(wordset_number_difference(selected_wordset1, selected_wordset2))
+print(stringized_data(data))

@@ -6,11 +6,11 @@ def dependency_tree_similarity(root1, root2):
     dependencies1 = get_dependency_list(root1)
     dependencies2 = get_dependency_list(root2)
 
-    print(dependencies1)
-    print(dependencies2)
-
     n1 = len(dependencies1)
     n2 = len(dependencies2)
+
+    if min(n1, n2) == 0:
+        return 0
 
     similarity_matrix = np.zeros((n1, n2))
     depth_weight_matrix = np.zeros((n1, n2))

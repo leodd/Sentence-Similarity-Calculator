@@ -37,20 +37,16 @@ def wup_similarity(w1, w2, pos=None):
 def jaccard_wordset_similarity(ws1, ws2):
     overlaps = 0
 
-    print(ws1)
-    print(ws2)
-
     n1 = len(ws1)
     n2 = len(ws2)
 
     for w1, _ in ws1:
         for w2, _ in ws2:
             if w1 == w2 or wup_similarity(w1, w2) == 1:
-                print(w1, w2)
                 overlaps += 1
                 break
 
-    return overlaps / (n1 + n2 - overlaps)
+    return overlaps / (n1 + n2 - overlaps) if n1 + n2 > 0 else 1
 
 
 def vectorized_wordset_similarity(ws1, ws2):
@@ -71,9 +67,6 @@ def vectorized_wordset_similarity(ws1, ws2):
 
     v1 = np.array(v1)
     v2 = np.array(v2)
-
-    print(v1)
-    print(v2)
 
     return np.sum(v1 * v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
 
@@ -113,4 +106,4 @@ def most_similar_word(target, ws):
 def wordset_number_difference(ws1, ws2):
     n1 = len(ws1)
     n2 = len(ws2)
-    return abs(n1 - n2) / max(n1, n2)
+    return abs(n1 - n2) / max(n1, n2) if n1 + n2 > 0 else 0
