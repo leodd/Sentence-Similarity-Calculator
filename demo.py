@@ -41,8 +41,8 @@ if False:
     save_data('processed-data/test-set.json', train_data)
 
 # features computation
-if True:
-    train_data = load_data('processed-data/dev-set.json')
+if False:
+    train_data = load_data('processed-data/test-set.json')
 
     for k, item in train_data.items():
         print(k)
@@ -67,6 +67,18 @@ if True:
         # item['nn-cd-sim'] = jaccard_wordset_similarity(selected_wordset1, selected_wordset2)
         # item['nn-cd-num-diff'] = wordset_number_difference(selected_wordset1, selected_wordset2)
 
+        selected_wordset1 = get_wordset_by_pos(
+            item['lemma-pos1'],
+            lambda pos: pos[0] == 'V'
+        )
+
+        selected_wordset2 = get_wordset_by_pos(
+            item['lemma-pos2'],
+            lambda pos: pos[0] == 'V'
+        )
+
+        item['verb-sim'] = jaccard_wordset_similarity(selected_wordset1, selected_wordset2)
+
         # item['tf-idf'] = tfidf_similarity(item['Sentence1'], item['Sentence2'])
         # item['cosine-sim'] = cosine_similarity(
         #     list_to_hashable(item['lemma-pos1']),
@@ -75,12 +87,14 @@ if True:
         #
         # item['jaccard-sim'] = jaccard_similarity(item['Sentence1'], item['Sentence2'])
 
-        item['wordset-sim'] = mutual_wordset_similarity(
-            list_to_hashable(item['lemma-pos1']),
-            list_to_hashable(item['lemma-pos2'])
-        )
+        # item['wordset-sim'] = mutual_wordset_similarity(
+        #     list_to_hashable(item['lemma-pos1']),
+        #     list_to_hashable(item['lemma-pos2'])
+        # )
 
-    save_data('processed-data/dev-set.json', train_data)
+        # item['rel-sim'] = dependency_similarity(item['d-tree1'], item['d-tree2'])
+
+    save_data('processed-data/test-set.json', train_data)
 
 # learning
 if False:
@@ -158,7 +172,7 @@ if False:
         file.write(res)
 
 # Gradient Boosting pipeline
-if False:
+if True:
     train_data = load_data('processed-data/train-set.json')
     dev_data = load_data('processed-data/dev-set.json')
 
@@ -195,7 +209,23 @@ if False:
     for k, i in dev_id_dict.items():
         res += '\n{}\t{}'.format(k, np.argmax(out[i]))
 
-    with open('result/dev_prediction.txt', 'w+') as file:
+    with open('result/test_prediction.txt', 'w+') as file:
+        file.write(res)
+
+    # predict test data
+    test_data = load_data('processed-data/dev-set.json')
+
+    id_dict, X, Y = data_to_XY(test_data, no_gold_tag=True)
+    dtest = xgb.DMatrix(X)
+
+    out = bst.predict(dtest)
+
+    res = 'id\tGold Tag'
+
+    for k, i in id_dict.items():
+        res += '\n{}\t{}'.format(k, np.argmax(out[i]))
+
+    with open('result/test_prediction.txt', 'w+') as file:
         file.write(res)
 
 # print(stringized_data(data))

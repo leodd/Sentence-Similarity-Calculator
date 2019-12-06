@@ -172,7 +172,7 @@ def data_to_XY(data, device=None, no_gold_tag=False):
 
     m = len(data)
 
-    X = np.zeros((m, 6))
+    X = np.zeros((m, 10))
     Y = np.zeros(m, dtype=int)
 
     for i, (k, item) in enumerate(data.items()):
@@ -182,7 +182,10 @@ def data_to_XY(data, device=None, no_gold_tag=False):
         X[i, 3] = item['tf-idf']
         X[i, 4] = item['cosine-sim']
         X[i, 5] = item['jaccard-sim']
-        # X[i, 6] =
+        X[i, 6] = item['wordset-sim']
+        X[i, 7] = len(item['token1'])
+        X[i, 8] = len(item['token2'])
+        X[i, 9] = item['verb-sim']
         if not no_gold_tag:
             Y[i] = item['Gold Tag'] - 1
         id_dict[k] = i

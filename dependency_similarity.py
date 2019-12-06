@@ -2,6 +2,18 @@ from word_similarity import *
 import numpy as np
 
 
+def dependency_similarity(d_tree1, d_tree2):
+    d_set1 = {term[1] for term in d_tree1}
+    d_set2 = {term[1] for term in d_tree2}
+
+    overlaps = len(d_set1.intersection(d_set2))
+
+    n1 = len(d_set1)
+    n2 = len(d_set2)
+
+    return overlaps / (n1 + n2 - overlaps) if n1 + n2 > 0 else 1
+
+
 def dependency_tree_similarity(root1, root2):
     dependencies1 = get_dependency_list(root1)
     dependencies2 = get_dependency_list(root2)
