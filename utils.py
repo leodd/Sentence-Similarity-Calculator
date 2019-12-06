@@ -172,7 +172,7 @@ def data_to_XY(data, device):
     m = len(data)
 
     X = np.zeros((m, 6))
-    Y = np.zeros((m, 1))
+    Y = np.zeros(m)
 
     for i, (k, item) in enumerate(data.items()):
         X[i, 0] = item['d-sim']
@@ -181,10 +181,10 @@ def data_to_XY(data, device):
         X[i, 3] = item['tf-idf']
         X[i, 4] = item['cosine-sim']
         X[i, 5] = item['jaccard-sim']
-        Y[i] = item['Gold Tag']
+        Y[i] = item['Gold Tag'] - 1
         id_dict[k] = i
 
     X = torch.from_numpy(X).float().to(device)
-    Y = torch.from_numpy(Y).float().to(device)
+    Y = torch.from_numpy(Y).long().to(device)
 
     return id_dict, X, Y
