@@ -9,6 +9,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 import sys
+import xgboost as xgb
 
 
 # data pre-processing
@@ -40,7 +41,7 @@ if False:
     save_data('processed-data/test-set.json', train_data)
 
 # features computation
-if False:
+if True:
     train_data = load_data('processed-data/dev-set.json')
 
     for k, item in train_data.items():
@@ -66,13 +67,18 @@ if False:
         # item['nn-cd-sim'] = jaccard_wordset_similarity(selected_wordset1, selected_wordset2)
         # item['nn-cd-num-diff'] = wordset_number_difference(selected_wordset1, selected_wordset2)
 
-        item['tf-idf'] = tfidf_similarity(item['Sentence1'], item['Sentence2'])
-        item['cosine-sim'] = cosine_similarity(
+        # item['tf-idf'] = tfidf_similarity(item['Sentence1'], item['Sentence2'])
+        # item['cosine-sim'] = cosine_similarity(
+        #     list_to_hashable(item['lemma-pos1']),
+        #     list_to_hashable(item['lemma-pos2'])
+        # )
+        #
+        # item['jaccard-sim'] = jaccard_similarity(item['Sentence1'], item['Sentence2'])
+
+        item['wordset-sim'] = mutual_wordset_similarity(
             list_to_hashable(item['lemma-pos1']),
             list_to_hashable(item['lemma-pos2'])
         )
-
-        item['jaccard-sim'] = jaccard_similarity(item['Sentence1'], item['Sentence2'])
 
     save_data('processed-data/dev-set.json', train_data)
 
@@ -92,10 +98,10 @@ if False:
         _, c_X, c_Y = data_to_XY(c_data, device)
         separated_XY.append((c_X, c_Y))
 
-    model = NeuralLearner([6, 100, 100, 5]).to(device)
+    model = NeuralLearner([8, 30, 30, 5]).to(device)
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=1, weight_decay=0.0001)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.1, weight_decay=0.0)
 
     for epoch in range(10000):
         idx = [torch.randint(len(separated_data[i]), size=(100,)) for i in range(5)]
@@ -127,14 +133,14 @@ if False:
     torch.save(model.state_dict(), 'result/model.ckpt')
 
 # testing
-if True:
+if False:
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    test_data = load_data('processed-data/test-set.json')
+    test_data = load_data('processed-data/dev-set.json')
 
     id_dict, X, Y = data_to_XY(test_data, device, no_gold_tag=True)
 
-    model = NeuralLearner([6, 100, 100, 5]).to(device)
+    model = NeuralLearner([8, 30, 30, 5]).to(device)
     model.load_state_dict(
         torch.load('result/model.ckpt', map_location='cuda:0' if torch.cuda.is_available() else 'cpu')
     )
@@ -148,7 +154,48 @@ if True:
     for k, i in id_dict.items():
         res += '\n{}\t{}'.format(k, torch.max(out[i], 0)[1])
 
-    with open('result/test_prediction.txt', 'w+') as file:
+    with open('result/dev_prediction.txt', 'w+') as file:
+        file.write(res)
+
+# Gradient Boosting pipeline
+if False:
+    train_data = load_data('processed-data/train-set.json')
+    dev_data = load_data('processed-data/dev-set.json')
+
+    id_dict, X, Y = data_to_XY(train_data)
+    dev_id_dict, dev_X, dev_Y = data_to_XY(dev_data)
+
+    dtrain = xgb.DMatrix(X, label=Y)
+    dtest = xgb.DMatrix(dev_X, label=dev_Y)
+
+    param = {
+        'max_depth': 6,
+        'eta': 0.3,
+        'objective': 'multi:softprob',
+        'num_class': 5
+    }
+
+    evallist = [(dtest, 'eval'), (dtrain, 'train')]
+
+    num_round = 20
+    bst = xgb.train(param, dtrain, num_round, evallist)
+
+    out = bst.predict(dtest)
+
+    accuracy = 0
+    for k, i in dev_id_dict.items():
+        if dev_Y[i] == np.argmax(out[i]):
+            accuracy += 1
+        print(k, dev_Y[i], np.argmax(out[i]))
+
+    print(accuracy / len(dev_id_dict))
+
+    res = 'id\tGold Tag'
+
+    for k, i in dev_id_dict.items():
+        res += '\n{}\t{}'.format(k, np.argmax(out[i]))
+
+    with open('result/dev_prediction.txt', 'w+') as file:
         file.write(res)
 
 # print(stringized_data(data))

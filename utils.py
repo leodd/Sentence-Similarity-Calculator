@@ -2,6 +2,7 @@ from nltk.tokenize import word_tokenize
 from nltk import pos_tag
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet as wn
+from word_similarity import *
 import torch
 import numpy as np
 import re
@@ -166,13 +167,13 @@ def separate_data_by_class(data):
     return res
 
 
-def data_to_XY(data, device, no_gold_tag=False):
+def data_to_XY(data, device=None, no_gold_tag=False):
     id_dict = dict()
 
     m = len(data)
 
     X = np.zeros((m, 6))
-    Y = np.zeros(m)
+    Y = np.zeros(m, dtype=int)
 
     for i, (k, item) in enumerate(data.items()):
         X[i, 0] = item['d-sim']
@@ -181,9 +182,13 @@ def data_to_XY(data, device, no_gold_tag=False):
         X[i, 3] = item['tf-idf']
         X[i, 4] = item['cosine-sim']
         X[i, 5] = item['jaccard-sim']
+        # X[i, 6] =
         if not no_gold_tag:
             Y[i] = item['Gold Tag'] - 1
         id_dict[k] = i
+
+    if device is None:
+        return id_dict, X, Y
 
     X = torch.from_numpy(X).float().to(device)
     Y = torch.from_numpy(Y).long().to(device)
