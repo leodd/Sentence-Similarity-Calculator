@@ -159,6 +159,7 @@ def list_to_hashable(l):
 
 def data_to_XY(data, device):
     id_dict = dict()
+    class_weight = np.zeros(5)
 
     m = len(data)
 
@@ -173,9 +174,10 @@ def data_to_XY(data, device):
         X[i, 4] = item['cosine-sim']
         X[i, 5] = item['jaccard-sim']
         Y[i] = item['Gold Tag'] - 1
+        class_weight[item['Gold Tag'] - 1] += 1
         id_dict[k] = i
 
     X = torch.from_numpy(X).float().to(device)
     Y = torch.from_numpy(Y).long().to(device)
 
-    return id_dict, X, Y
+    return id_dict, X, Y, torch.from_numpy(1 / class_weight).float()

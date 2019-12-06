@@ -18,11 +18,10 @@ class NeuralLearner(nn.Module):
 
             if i < len(opt) - 1:
                 self.layers.append(
-                    nn.Tanh()
+                    nn.ReLU()
                 )
 
         self.layers = nn.ModuleList(self.layers)
-        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
         out = x
@@ -30,4 +29,4 @@ class NeuralLearner(nn.Module):
         for layer in self.layers:
             out = layer(out)
 
-        return self.softmax(out)
+        return out
